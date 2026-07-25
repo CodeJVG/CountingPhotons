@@ -31,9 +31,15 @@ Usage
 
 Reproducible: uses a fixed seed (2026).  Change SEED for a different
 source-to-letter assignment.
+
+Note: the committed .npz files were generated with an earlier (loop-based)
+implementation of the thermal source.  Re-running gives the same physics,
+rates, and A/B/C assignment, but not bit-identical tag values; the numbers
+quoted in notebook 4 refer to the committed files.
 """
 
 import numpy as np
+from scipy.signal import lfilter
 
 # --------------------------------------------------------------------------
 # Simulation parameters
@@ -70,7 +76,7 @@ def coherent_arrivals(rng: np.random.Generator,
 
 def thermal_arrivals(rng: np.random.Generator,
                      rate: float, duration: float,
-                     tau_c: float) -> np.ndarray:
+                     tau_c: float, chunk: int = 2_000_000) -> np.ndarray:
     """Arrival times of single-mode chaotic (thermal) light.
 
     The complex field E(t) is a discrete Ornstein-Uhlenbeck (AR(1))
@@ -80,12 +86,18 @@ def thermal_arrivals(rng: np.random.Generator,
     as a Poisson process with the fluctuating rate ~ I(t) (a Cox
     process), which yields g2(0) = 2.
 
+    The AR(1) recursion E_k = a E_{k-1} + s * noise_k runs through
+    scipy's lfilter in fixed-size chunks (the filter state carries over
+    between chunks), so memory stays at ~chunk-size arrays instead of the
+    full 10^8-step grid — safe on a default 2-core/8 GB Codespace.
+
     Parameters
     ----------
     rng : numpy random generator
     rate : mean photon rate [1/s]
     duration : total time [s]
     tau_c : field coherence time [s]
+    chunk : grid steps processed per block (memory/speed trade-off)
 
     Returns
     -------
@@ -93,22 +105,23 @@ def thermal_arrivals(rng: np.random.Generator,
     """
     dt = tau_c / 20.0                       # time grid resolution [s]
     n_steps = int(duration / dt)
-    # AR(1) recursion for the complex field: E_k = a E_{k-1} + s * noise
     a = np.exp(-dt / tau_c)
     s = np.sqrt((1.0 - a**2) / 2.0)         # unit-variance stationary field
-    noise = rng.normal(size=(n_steps, 2)).view(np.complex128).ravel()
-    field = np.empty(n_steps, dtype=np.complex128)
-    field[0] = (rng.normal() + 1j * rng.normal()) / np.sqrt(2.0)
-    for k in range(1, n_steps):
-        field[k] = a * field[k - 1] + s * noise[k]
-    intensity = np.abs(field) ** 2          # mean 1, exponential distribution
-    # Poisson clicks in each grid step with instantaneous rate*I
-    mean_counts = rate * dt * intensity
-    counts = rng.poisson(mean_counts)
-    # place each click uniformly inside its grid step
-    step_index = np.repeat(np.arange(n_steps), counts)
-    times = (step_index + rng.uniform(size=step_index.size)) * dt
-    return np.sort(times)
+    # start from a stationary sample so there is no warm-up transient
+    field_init = (rng.normal() + 1j * rng.normal()) / np.sqrt(2.0)
+    zi = np.array([a * field_init])         # lfilter carry-over state
+    times = []
+    for i0 in range(0, n_steps, chunk):
+        n = min(chunk, n_steps - i0)
+        noise = rng.normal(size=(n, 2)).view(np.complex128).ravel()
+        field, zi = lfilter([s], [1.0, -a], noise, zi=zi)
+        intensity = np.abs(field) ** 2      # mean 1, exponential distribution
+        # Poisson clicks in each grid step with instantaneous rate*I
+        counts = rng.poisson(rate * dt * intensity)
+        # place each click uniformly inside its grid step
+        step_index = np.repeat(np.arange(i0, i0 + n), counts)
+        times.append((step_index + rng.uniform(size=step_index.size)) * dt)
+    return np.sort(np.concatenate(times))
 
 
 def emitter_arrivals(rng: np.random.Generator,

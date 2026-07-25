@@ -117,7 +117,9 @@ def three_sources():
                            edgecolor=INK, lw=1.5))
     ax.text(0.85, 3.55, "laser", ha="center", va="center", fontsize=11)
     _beam(ax, 1.5, 3.55, 8.6, 3.55, color=ACCENT)
-    for xp in np.linspace(2.4, 7.9, 6):
+    # Poisson-random spacing (memoryless): occasional near-pairs and gaps —
+    # evenly spaced dots would be the fingerprint of antibunched light
+    for xp in [2.6, 3.35, 3.75, 5.2, 6.7, 7.1]:
         _photon(ax, xp, 3.55, color=ACCENT)
     ax.text(8.9, 3.55, "coherent\nrandom, memoryless", fontsize=10,
             va="center", color=INK)
@@ -175,19 +177,26 @@ def hbt_setup():
     _beam(ax, 4.0, 2.65, 4.0, 3.85)                  # reflected up
     _detector(ax, 4.0, 4.15, angle=270, label="D2")
 
-    # correlator box + histogram inset
+    # correlator box + histogram inset: both possible outcomes — a lamp
+    # bunches (peak at tau = 0), a single emitter antibunches (dip)
     ax.add_patch(Rectangle((6.9, 3.4), 1.9, 1.1, facecolor="#eee6f5",
                            edgecolor=INK, lw=1.5))
     ax.text(7.85, 4.28, "correlator", ha="center", fontsize=10, color=INK)
     tau = np.linspace(-1, 1, 60)
-    ax.plot(7.0 + (tau + 1) * 0.85, 3.55 + 0.6 * (1 - np.exp(-np.abs(tau) / 0.25)),
+    x_in = 7.0 + (tau + 1) * 0.85
+    ax.plot([7.0, 8.7], [3.85, 3.85], color=INK, lw=0.7, ls="--", alpha=0.5)
+    ax.plot(x_in, 3.85 + 0.28 * np.exp(-np.abs(tau) / 0.25),
+            color=HOT, lw=1.6)
+    ax.plot(x_in, 3.85 - 0.28 * np.exp(-np.abs(tau) / 0.25),
             color=GOOD, lw=1.6)
+    ax.text(7.02, 4.10, "lamp", fontsize=7.5, color=HOT)
+    ax.text(7.02, 3.52, "emitter", fontsize=7.5, color=GOOD)
     ax.text(7.85, 3.42, r"$g^{(2)}(\tau)$", ha="center", fontsize=9,
-            color=GOOD, va="top")
+            color=INK, va="top")
     ax.plot([6.73, 6.9], [2.4, 3.7], color=INK, lw=1.1, ls=":")
     ax.plot([4.0, 6.9], [4.42, 4.2], color=INK, lw=1.1, ls=":")
-    ax.text(6.73, 2.15, "start", fontsize=9, color=INK)
-    ax.text(4.35, 4.42, "stop", fontsize=9, color=INK)
+    ax.text(6.73, 2.15, "$t_1$ tags", fontsize=9, color=INK)
+    ax.text(4.35, 4.42, "$t_2$ tags", fontsize=9, color=INK)
 
     ax.text(2.2, 2.62, "one beam", fontsize=9, color=INK)
     ax.text(4.55, 1.75,
@@ -323,7 +332,10 @@ def ligo_noise_budget():
     rad_press = 2.0 * (f / 30.0) ** -2      # quantum back-action (amplitude quad.)
     shot = 0.35 * np.sqrt(1 + (f / 400.0) ** 2)   # shot noise (phase quad.)
     quantum = np.sqrt(rad_press ** 2 + shot ** 2)
-    sql = 1.35 * (f / 55.0) ** -1           # standard quantum limit envelope
+    # standard quantum limit: the power-independent envelope traced by the
+    # rad-pressure/shot-noise crossing (rad ∝ √P, shot ∝ 1/√P), tangent to
+    # the total quantum noise at its minimum — never above it
+    sql = np.sqrt(2.0 * rad_press * shot)
     total = np.sqrt(seismic ** 2 + thermal ** 2 + quantum ** 2)
 
     fig, ax = plt.subplots(figsize=(8, 4.8))
@@ -423,7 +435,8 @@ def hom_dip_setup():
     ax.text(3.97, 1.32, "delay", ha="center", va="center", fontsize=9)
     ax.annotate("", xy=(4.75, 0.72), xytext=(3.2, 0.72),
                 arrowprops=dict(arrowstyle="<|-|>", color=INK, lw=1.3))
-    ax.text(3.97, 0.45, r"$\pm\,\delta\tau$   (16 µm of travel = 100 fs!)",
+    ax.text(3.97, 0.45,
+            r"$\pm\,\delta\tau$   (Hong 1987: 16 µm of BS travel ≈ 100 fs!)",
             ha="center", fontsize=9, color=INK)
     _beam(ax, 4.55, 1.35, 5.75, 1.95, color=ACCENT)
     _photon(ax, 5.0, 1.6, color=ACCENT)
@@ -488,7 +501,7 @@ def noon_mzi():
     ax.text(2.35, 1.55, r"HOM at BS$_1$ makes the NOON state:", fontsize=10,
             color="#7b3fb3")
     ax.text(2.35, 1.22,
-            r"$\left(|2,0\rangle - |0,2\rangle\right)/\sqrt{2}$",
+            r"$\left(|2,0\rangle + |0,2\rangle\right)/\sqrt{2}$",
             fontsize=12, color="#7b3fb3")
     ax.text(2.0, 3.0, r"$|2,0\rangle \to e^{i2\varphi}\,|2,0\rangle$: the pair pays the phase twice", fontsize=10, color=INK)
     # inset: cos(2phi) fringe vs single-photon fringe
