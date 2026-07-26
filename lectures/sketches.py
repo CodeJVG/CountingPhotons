@@ -109,56 +109,74 @@ def qho_ladder():
 
 
 def three_sources():
-    """Laser / lamp / single emitter, with their photon streams."""
-    fig, ax = _canvas(9.5, 4.4)
+    """Laser / lamp / ideal number-state source: counts per time window.
 
-    # --- laser: box + collimated beam, evenly spaced photons
-    ax.add_patch(Rectangle((0.2, 3.2), 1.3, 0.7, facecolor="#d9e6f2",
+    Photons are indistinguishable, so the honest cartoon shows no arrival
+    pattern within a window — only the NUMBER found in each counting
+    window differs between the sources: same nbar = 4, different P(n).
+    """
+    fig, ax = _canvas(9.5, 4.6)
+
+    def _window_row(y, counts, color):
+        """Five counting windows with `counts[k]` indistinguishable dots."""
+        x0, w, gap = 2.05, 1.14, 0.14
+        for k, n in enumerate(counts):
+            xl = x0 + k * (w + gap)
+            ax.add_patch(Rectangle((xl, y - 0.40), w, 0.80,
+                                   facecolor="white", edgecolor=INK,
+                                   lw=1.0, zorder=2))
+            # dots on a compact grid: no time structure inside a window
+            cols = 3
+            for j in range(n):
+                r, c = divmod(j, cols)
+                nrow = -(-n // cols)
+                ncol = min(n, cols)
+                dx = (c - (ncol - 1) / 2) * 0.30
+                dy = ((nrow - 1) / 2 - r) * 0.26
+                ax.add_patch(Circle((xl + w / 2 + dx, y + dy), 0.075,
+                                    facecolor=color, edgecolor="none",
+                                    zorder=3))
+            ax.text(xl + w / 2, y - 0.58, str(n), ha="center", va="top",
+                    fontsize=9, color=color)
+
+    # --- laser: Poisson — n rattles around nbar by ~sqrt(nbar)
+    ax.add_patch(Rectangle((0.2, 3.25), 1.3, 0.7, facecolor="#d9e6f2",
                            edgecolor=INK, lw=1.5))
-    ax.text(0.85, 3.55, "laser", ha="center", va="center", fontsize=11)
-    _beam(ax, 1.5, 3.55, 8.6, 3.55, color=ACCENT)
-    # Poisson-random spacing (memoryless): occasional near-pairs and gaps —
-    # evenly spaced dots would be the fingerprint of antibunched light
-    for xp in [2.6, 3.35, 3.75, 5.2, 6.7, 7.1]:
-        _photon(ax, xp, 3.55, color=ACCENT)
-    ax.text(8.9, 3.55, "coherent\nrandom, memoryless", fontsize=10,
-            va="center", color=INK)
+    ax.text(0.85, 3.6, "laser", ha="center", va="center", fontsize=11)
+    _window_row(3.6, [4, 5, 3, 4, 5], ACCENT)
+    ax.text(8.75, 3.6, "coherent — Poisson:\n$n$ jitters by "
+            r"$\sqrt{\bar n}$", fontsize=10, va="center", color=INK)
 
-    # --- lamp: bulb + wiggly rays, clustered photons
-    ax.add_patch(Circle((0.85, 2.0), 0.36, facecolor="#fbe8c9",
+    # --- lamp: Bose-Einstein — feast or famine (0 is the most likely n!)
+    ax.add_patch(Circle((0.85, 2.05), 0.36, facecolor="#fbe8c9",
                         edgecolor=INK, lw=1.5))
-    ax.add_patch(Rectangle((0.7, 1.5), 0.3, 0.22, facecolor="#e6e6e6",
+    ax.add_patch(Rectangle((0.7, 1.55), 0.3, 0.22, facecolor="#e6e6e6",
                            edgecolor=INK, lw=1.2))
-    ax.text(0.85, 2.0, "lamp", ha="center", va="center", fontsize=9)
-    for ang in [35, 12, -25]:
-        t = np.linspace(0, 1, 80)
-        xr = 1.25 + 0.75 * t * np.cos(np.radians(ang))
-        yr = 2.0 + 0.75 * t * np.sin(np.radians(ang)) \
-            + 0.04 * np.sin(9 * np.pi * t)
-        ax.plot(xr, yr, color=HOT, lw=1.2, alpha=0.7)
-    _beam(ax, 1.35, 2.0, 8.6, 2.0, color=HOT)
-    for xc in [2.9, 3.15, 3.32, 5.4, 5.62, 7.6, 7.78, 7.95]:
-        _photon(ax, xc, 2.0, color=HOT)
-    ax.text(8.9, 2.0, "thermal\nbunched, chaotic", fontsize=10,
-            va="center", color=INK)
+    ax.text(0.85, 2.05, "lamp", ha="center", va="center", fontsize=9)
+    _window_row(2.05, [0, 9, 1, 7, 3], HOT)
+    ax.text(8.75, 2.05, "thermal — Bose–Einstein:\nfeast or famine",
+            fontsize=10, va="center", color=INK)
 
-    # --- single emitter: two-level atom, one photon at a time
+    # --- ideal number-state source: always exactly n
     ax.add_patch(Circle((0.85, 0.5), 0.3, facecolor="#dff2df",
                         edgecolor=INK, lw=1.5))
     ax.hlines(0.62, 0.72, 0.98, color=INK, lw=1.4)
     ax.hlines(0.38, 0.72, 0.98, color=INK, lw=1.4)
     ax.annotate("", xy=(0.85, 0.4), xytext=(0.85, 0.6),
                 arrowprops=dict(arrowstyle="-|>", color=GOOD, lw=1.4))
-    _beam(ax, 1.25, 0.5, 8.6, 0.5, color=GOOD)
-    for xe in [3.0, 4.7, 6.4, 7.9]:
-        _photon(ax, xe, 0.5, color=GOOD)
-    ax.text(8.9, 0.5, "Fock-like\nantibunched, one at a time",
+    _window_row(0.5, [4, 4, 4, 4, 4], GOOD)
+    ax.text(8.75, 0.5, "Fock $|4\\rangle$ —\nthe same count, every time",
             fontsize=10, va="center", color=INK)
 
-    ax.text(0.2, 4.25, "same average power — three different photon streams",
+    ax.annotate("", xy=(8.45, -0.35), xytext=(2.05, -0.35),
+                arrowprops=dict(arrowstyle="-|>", color=INK, lw=1.2))
+    ax.text(5.25, -0.52, "successive counting windows", ha="center",
+            va="top", fontsize=9, color=INK)
+    ax.text(0.2, 4.42, "same average $\\bar n = 4$ per window — three "
+            "different count records: $P(n)$ is the fingerprint",
             fontsize=12, color=INK)
     ax.set_xlim(0, 11.6)
-    ax.set_ylim(-0.2, 4.6)
+    ax.set_ylim(-0.95, 4.7)
     plt.tight_layout()
     plt.show()
 
