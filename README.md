@@ -25,12 +25,12 @@ ICTP-SAIFR school, IFT–UNESP São Paulo, July 27–29, 2026.
 | # | When | Notebook | Format |
 |---|------|----------|--------|
 | 0 | announced Monday | [00_Setup_GitHub_Codespaces](lectures/00_Setup_GitHub_Codespaces.ipynb) | standalone setup, do Monday evening (~20 min) |
-| 1 | Mon Jul 27, 11:30 | [01_QuantumLight_PhotonStatistics](lectures/01_QuantumLight_PhotonStatistics.ipynb) | lecture |
-| 2 | Mon Jul 27, 14:00 | [02_ShotNoise_Squeezing](lectures/02_ShotNoise_Squeezing.ipynb) | lecture · live demos |
+| 1 | Mon Jul 27, 14:00 | [01_QuantumLight_PhotonStatistics](lectures/01_QuantumLight_PhotonStatistics.ipynb) | lecture |
+| 2 | Mon Jul 27, 15:30 | [02_ShotNoise_Squeezing](lectures/02_ShotNoise_Squeezing.ipynb) | lecture · live demos |
 | 3 | Tue Jul 28, 9:00 | [03_Correlations_Generation_Detection](lectures/03_Correlations_Generation_Detection.ipynb) | lecture (+ take-home exercise) |
 | 4 | Tue Jul 28, 10:30 | [04_HandsOn_g2_HBT](lectures/04_HandsOn_g2_HBT.ipynb) | hands-on (+ practice exercises P1–P5) |
-| 5 | Wed Jul 29, 10:30 | [05_Lab_HOM_Interference](lectures/05_Lab_HOM_Interference.ipynb) | lab |
-| 6 | Wed Jul 29, 11:30 | [06_Lab_HeraldedFockStates](lectures/06_Lab_HeraldedFockStates.ipynb) | lab |
+| 5 | Wed Jul 29, 9:00 | [05_Lab_HOM_Interference](lectures/05_Lab_HOM_Interference.ipynb) | lab |
+| 6 | Wed Jul 29, 10:30 | [06_Lab_HeraldedFockStates](lectures/06_Lab_HeraldedFockStates.ipynb) | lab |
 
 
 ## Running the notebooks
