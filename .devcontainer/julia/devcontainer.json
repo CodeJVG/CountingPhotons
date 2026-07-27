@@ -1,0 +1,31 @@
+{
+  "name": "CountingPhotons + Julia (QuantumOptics.jl)",
+  "image": "mcr.microsoft.com/devcontainers/python:3.12-bookworm",
+  "features": {
+    "ghcr.io/devcontainers/features/git:1": {},
+    "ghcr.io/devcontainers/features/sshd:1": {},
+    "ghcr.io/julialang/devcontainer-features/julia:1": {}
+  },
+  "customizations": {
+    "vscode": {
+      "extensions": [
+        "ms-python.python",
+        "ms-toolsai.jupyter",
+        "ms-python.vscode-pylance",
+        "julialang.language-julia"
+      ],
+      "settings": {
+        "python.defaultInterpreterPath": "/usr/local/bin/python",
+        "jupyter.interactiveWindow.textEditor.executeSelection": true,
+        "jupyter.kernels.excludePythonEnvironments": [
+          "/bin/python3",
+          "/usr/bin/python3",
+          "/usr/bin/python3.*",
+          "/bin/python3.*"
+        ]
+      }
+    }
+  },
+  "postCreateCommand": "pip install -r requirements/requirements.txt && python -m ipykernel install --user --name python3 --display-name 'Python 3' && julia -e 'ENV[\"JUPYTER\"]=\"/usr/local/bin/jupyter\"; using Pkg; Pkg.add([\"IJulia\", \"QuantumOptics\"])'",
+  "remoteUser": "vscode"
+}

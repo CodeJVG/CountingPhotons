@@ -74,7 +74,7 @@ want the PDFs locally, put them in a `references/` folder — it is
 
 - [Perceval documentation](https://perceval.quandela.net/docs/) — the photonic QC framework used in Lectures 5–6
 - [QuTiP documentation](https://qutip.readthedocs.io/) — used in Lectures 2 and 4
-- [QuantumOptics.jl](https://qojulia.org) — the Julia sibling of QuTiP, used in Helmut Ritsch's lectures at this school; concepts transfer 1:1
+- [QuantumOptics.jl](https://qojulia.org) — the Julia sibling of QuTiP, used in Helmut Ritsch's lectures at this school; concepts transfer 1:1. To run it yourself: on Colab simply switch the runtime type to **Julia** (Runtime ▸ Change runtime type); in Codespaces pick the **"CountingPhotons + Julia"** dev container (Code ▸ Codespaces ▸ ⋯ ▸ *New with options…* ▸ Dev container configuration) — it has Julia, IJulia, and QuantumOptics.jl preinstalled (first build takes ~10 min; the default Python container stays the fast one)
 - [PHY386 — Computational Methods for Physicists](https://github.com/ubsuny/PHY386) — my UB course; self-paced Python/Jupyter/plotting basics if you want a gentler computational on-ramp
 - [GitHub docs: forking](https://docs.github.com/en/get-started/quickstart/fork-a-repo)
 - [Getting started with Codespaces](https://docs.github.com/en/codespaces/getting-started/quickstart)
